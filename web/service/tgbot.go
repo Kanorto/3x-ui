@@ -1292,7 +1292,8 @@ func (t *Tgbot) clientInfoMsg(
 			}
 		}
 	}
-
+	printTraffic = false
+	printEnabled = false
 	output := ""
 	output += t.I18nBot("tgbot.messages.email", "Email=="+traffic.Email)
 	if printEnabled {
