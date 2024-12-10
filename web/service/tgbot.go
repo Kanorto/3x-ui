@@ -1475,7 +1475,7 @@ func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID ...in
 	}
 
 	output := ""
-
+	email := ""
 	if len(traffics) > 0 {
 		if len(email) > 0 {
 			for _, traffic := range traffics {
