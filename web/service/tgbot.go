@@ -1460,7 +1460,7 @@ func (t *Tgbot) getClientUsage(chatId int64, tgUserID int64, email ...string) {
 		t.SendMsgToTgbot(chatId, output, refreshkeyboard)
 	}
 }
-func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID ...int) {
+func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID ...int64, email string) {
 	traffics, err := t.inboundService.GetClientTrafficTgBot(tgUserID)
 	if err != nil {
 		logger.Warning(err)
@@ -1475,7 +1475,6 @@ func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID ...in
 	}
 
 	output := ""
-	email := ""
 	if len(traffics) > 0 {
 		if len(email) > 0 {
 			for _, traffic := range traffics {
@@ -1501,8 +1500,11 @@ func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID ...in
 			tu.InlineKeyboardButton(t.I18nBot("tgbot.buttons.clientUsage")).WithCallbackData(t.encodeQuery("client_traffic")),
 		),
 	)
-	t.editMessageTgBot(chatId, messageID[0], output, refreshkeyboard)
-	
+	if len(messageID) > 0 {
+		t.editMessageTgBot(chatId, messageID[0], output, refreshkeyboard)
+	} else {
+		t.SendMsgToTgbot(chatId, output, refreshkeyboard)
+	}
 }
 
 func (t *Tgbot) searchClientIps(chatId int64, email string, messageID ...int) {
