@@ -879,7 +879,7 @@ func (t *Tgbot) answerCallback(callbackQuery *telego.CallbackQuery, isAdmin bool
 	case "client_traffic":
 		tgUserID := callbackQuery.From.ID
 		t.sendCallbackAnswerTgBot(callbackQuery.ID, t.I18nBot("tgbot.buttons.clientUsage"))
-		t.geteditClientUsage(chatId, tgUserID, callbackQuery.Message.GetMessageID())
+		t.getClientUsage(chatId, tgUserID)
 	case "client_commands":
 		t.sendCallbackAnswerTgBot(callbackQuery.ID, t.I18nBot("tgbot.buttons.commands"))
 		t.SendMsgToTgbot(chatId, t.I18nBot("tgbot.commands.helpClientCommands"))
@@ -1454,52 +1454,6 @@ func (t *Tgbot) getClientUsage(chatId int64, tgUserID int64, email ...string) {
 	)
 	t.SendMsgToTgbot(chatId, output, refreshkeyboard)
 	
-}
-func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID int64, email ...string) {
-	traffics, err := t.inboundService.GetClientTrafficTgBot(tgUserID)
-	if err != nil {
-		logger.Warning(err)
-		msg := t.I18nBot("tgbot.wentWrong")
-		t.SendMsgToTgbot(chatId, msg)
-		return
-	}
-
-	if len(traffics) == 0 {
-		t.SendMsgToTgbot(chatId, t.I18nBot("tgbot.answers.askToAddUserId", "TgUserID=="+strconv.FormatInt(tgUserID, 10)))
-		return
-	}
-
-	output := ""
-	if len(traffics) > 0 {
-		if len(email) > 0 {
-			for _, traffic := range traffics {
-				if traffic.Email == email[0] {
-					output := t.clientInfoMsg(traffic, true, true, true, true, true, true)
-					t.SendMsgToTgbot(chatId, output)
-					return
-				}
-			}
-			msg := t.I18nBot("tgbot.noResult")
-			t.SendMsgToTgbot(chatId, msg)
-			return
-		} else {
-			for _, traffic := range traffics {
-				output += t.clientInfoMsg(traffic, true, true, true, true, true, false)
-				output += "\r\n"
-			}
-		}
-	}
-	
-	refreshkeyboard := tu.InlineKeyboard(
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton(t.I18nBot("tgbot.buttons.clientUsage")).WithCallbackData(t.encodeQuery("client_traffic")),
-		),
-	)
-	if len(messageID) > 0 {
-		t.editMessageTgBot(chatId, messageID, output, refreshkeyboard)
-	} else {
-		t.SendMsgToTgbot(chatId, output, refreshkeyboard)
-	}
 }
 
 func (t *Tgbot) searchClientIps(chatId int64, email string, messageID ...int) {
