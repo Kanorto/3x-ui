@@ -1455,7 +1455,7 @@ func (t *Tgbot) getClientUsage(chatId int64, tgUserID int64, email ...string) {
 	t.SendMsgToTgbot(chatId, output, refreshkeyboard)
 	
 }
-func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID int, email ...string) {
+func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID int64, email ...string) {
 	traffics, err := t.inboundService.GetClientTrafficTgBot(tgUserID)
 	if err != nil {
 		logger.Warning(err)
@@ -1496,7 +1496,7 @@ func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID int, 
 		),
 	)
 	if len(messageID) > 0 {
-		t.editMessageTgBot(chatId, messageID[0], output, refreshkeyboard)
+		t.editMessageTgBot(chatId, messageID, output, refreshkeyboard)
 	} else {
 		t.SendMsgToTgbot(chatId, output, refreshkeyboard)
 	}
