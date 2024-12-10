@@ -1233,6 +1233,96 @@ func (t *Tgbot) getInboundClients(id int) (*telego.InlineKeyboardMarkup, error) 
 	return keyboard, nil
 }
 
+func (t *Tgbot) clientInfoMsgADMIN(
+	traffic *xray.ClientTraffic,
+	printEnabled bool,
+	printOnline bool,
+	printActive bool,
+	printDate bool,
+	printTraffic bool,
+	printRefreshed bool,
+) string {
+	now := time.Now().Unix()
+	expiryTime := ""
+	flag := false
+	diff := traffic.ExpiryTime/1000 - now
+	if traffic.ExpiryTime == 0 {
+		expiryTime = t.I18nBot("tgbot.unlimited")
+	} else if diff > 172800 || !traffic.Enable {
+		expiryTime = time.Unix((traffic.ExpiryTime / 1000), 0).Format("2006-01-02 15:04:05")
+	} else if traffic.ExpiryTime < 0 {
+		expiryTime = fmt.Sprintf("%d %s", traffic.ExpiryTime/-86400000, t.I18nBot("tgbot.days"))
+		flag = true
+	} else {
+		expiryTime = fmt.Sprintf("%d %s", diff/3600, t.I18nBot("tgbot.hours"))
+		flag = true
+	}
+
+	total := ""
+	if traffic.Total == 0 {
+		total = t.I18nBot("tgbot.unlimited")
+	} else {
+		total = common.FormatTraffic((traffic.Total))
+	}
+
+	enabled := ""
+	isEnabled, err := t.inboundService.checkIsEnabledByEmail(traffic.Email)
+	if err != nil {
+		logger.Warning(err)
+		enabled = t.I18nBot("tgbot.wentWrong")
+	} else if isEnabled {
+		enabled = t.I18nBot("tgbot.messages.yes")
+	} else {
+		enabled = t.I18nBot("tgbot.messages.no")
+	}
+
+	active := ""
+	if traffic.Enable {
+		active = t.I18nBot("tgbot.messages.yes")
+	} else {
+		active = t.I18nBot("tgbot.messages.no")
+	}
+
+	status := t.I18nBot("tgbot.offline")
+	if p.IsRunning() {
+		for _, online := range p.GetOnlineClients() {
+			if online == traffic.Email {
+				status = t.I18nBot("tgbot.online")
+				break
+			}
+		}
+	}
+
+	output := ""
+	output += t.I18nBot("tgbot.messages.email", "Email=="+traffic.Email)
+	if printEnabled {
+		output += t.I18nBot("tgbot.messages.enabled", "Enable=="+enabled)
+	}
+	if printOnline {
+		output += t.I18nBot("tgbot.messages.online", "Status=="+status)
+	}
+	if printActive {
+		output += t.I18nBot("tgbot.messages.active", "Enable=="+active)
+	}
+	if printDate {
+		if flag {
+			output += t.I18nBot("tgbot.messages.expireIn", "Time=="+expiryTime)
+		} else {
+			output += t.I18nBot("tgbot.messages.expire", "Time=="+expiryTime)
+		}
+	}
+	if printTraffic {
+		output += t.I18nBot("tgbot.messages.upload", "Upload=="+common.FormatTraffic(traffic.Up))
+		output += t.I18nBot("tgbot.messages.download", "Download=="+common.FormatTraffic(traffic.Down))
+		output += t.I18nBot("tgbot.messages.total", "UpDown=="+common.FormatTraffic((traffic.Up+traffic.Down)), "Total=="+total)
+	}
+	if printRefreshed {
+		output += t.I18nBot("tgbot.messages.refreshedOn", "Time=="+time.Now().Format("2006-01-02 15:04:05"))
+	}
+
+	return output
+}
+
 func (t *Tgbot) clientInfoMsg(
 	traffic *xray.ClientTraffic,
 	printEnabled bool,
@@ -1454,7 +1544,7 @@ func (t *Tgbot) searchClient(chatId int64, email string, messageID ...int) {
 		return
 	}
 
-	output := t.clientInfoMsg(traffic, true, true, true, true, true, true)
+	output := t.clientInfoMsgADMIN(traffic, true, true, true, true, true, true)
 
 	inlineKeyboard := tu.InlineKeyboard(
 		tu.InlineKeyboardRow(
