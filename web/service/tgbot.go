@@ -1446,10 +1446,15 @@ func (t *Tgbot) getClientUsage(chatId int64, tgUserID int64, email ...string) {
 			}
 		}
 	}
+	
+	refreshkeyboard := tu.InlineKeyboard(
+		tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton(t.I18nBot("tgbot.buttons.clientUsage")).WithCallbackData(t.encodeQuery("client_traffic")),
+		),
+	)
+	output += refreshkeyboard
 
 	t.SendMsgToTgbot(chatId, output)
-	output = t.I18nBot("tgbot.commands.pleaseChoose")
-	t.SendAnswer(chatId, output, false)
 }
 
 func (t *Tgbot) searchClientIps(chatId int64, email string, messageID ...int) {
