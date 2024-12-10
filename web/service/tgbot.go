@@ -276,7 +276,7 @@ func (t *Tgbot) answerCommand(message *telego.Message, chatId int64, isAdmin boo
 	case "start":
 		msg += t.I18nBot("tgbot.commands.start", "Firstname=="+message.From.FirstName)
 		if isAdmin {
-			msg += t.I18nBot("tgbot.commands.welcome", "Hostname=="+hostname)
+			msg += t.I18nBot("tgbot.commands.welcome")
 		}
 		msg += "\n\n" + t.I18nBot("tgbot.commands.pleaseChoose")
 	case "status":
@@ -1295,9 +1295,6 @@ func (t *Tgbot) clientInfoMsg(
 
 	output := ""
 	output += t.I18nBot("tgbot.messages.email", "Email=="+traffic.Email)
-	if printEnabled {
-		output += t.I18nBot("tgbot.messages.enabled", "Enable=="+enabled)
-	}
 	if printOnline {
 		output += t.I18nBot("tgbot.messages.online", "Status=="+status)
 	}
@@ -1310,14 +1307,6 @@ func (t *Tgbot) clientInfoMsg(
 		} else {
 			output += t.I18nBot("tgbot.messages.expire", "Time=="+expiryTime)
 		}
-	}
-	if printTraffic {
-		output += t.I18nBot("tgbot.messages.upload", "Upload=="+common.FormatTraffic(traffic.Up))
-		output += t.I18nBot("tgbot.messages.download", "Download=="+common.FormatTraffic(traffic.Down))
-		output += t.I18nBot("tgbot.messages.total", "UpDown=="+common.FormatTraffic((traffic.Up+traffic.Down)), "Total=="+total)
-	}
-	if printRefreshed {
-		output += t.I18nBot("tgbot.messages.refreshedOn", "Time=="+time.Now().Format("2006-01-02 15:04:05"))
 	}
 
 	return output
@@ -1359,7 +1348,6 @@ func (t *Tgbot) getClientUsage(chatId int64, tgUserID int64, email ...string) {
 		}
 	}
 
-	output += t.I18nBot("tgbot.messages.refreshedOn", "Time=="+time.Now().Format("2006-01-02 15:04:05"))
 	t.SendMsgToTgbot(chatId, output)
 	output = t.I18nBot("tgbot.commands.pleaseChoose")
 	t.SendAnswer(chatId, output, false)
@@ -1413,7 +1401,6 @@ func (t *Tgbot) clientTelegramUserInfo(chatId int64, email string, messageID ...
 	output := ""
 	output += t.I18nBot("tgbot.messages.email", "Email=="+email)
 	output += t.I18nBot("tgbot.messages.TGUser", "TelegramID=="+tgId)
-	output += t.I18nBot("tgbot.messages.refreshedOn", "Time=="+time.Now().Format("2006-01-02 15:04:05"))
 
 	inlineKeyboard := tu.InlineKeyboard(
 		tu.InlineKeyboardRow(
