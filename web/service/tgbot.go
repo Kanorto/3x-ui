@@ -1265,7 +1265,7 @@ func (t *Tgbot) clientInfoMsg(
 		total = common.FormatTraffic((traffic.Total))
 	}
 
-	enabled := ""
+	enabled := "" 
 	isEnabled, err := t.inboundService.checkIsEnabledByEmail(traffic.Email)
 	if err != nil {
 		logger.Warning(err)
@@ -1295,11 +1295,19 @@ func (t *Tgbot) clientInfoMsg(
 
 	output := ""
 	output += t.I18nBot("tgbot.messages.email", "Email=="+traffic.Email)
+	if printEnabled {
+		output += t.I18nBot("tgbot.messages.enabled", "Enable=="+enabled)
+	}
 	if printOnline {
 		output += t.I18nBot("tgbot.messages.online", "Status=="+status)
 	}
 	if printActive {
 		output += t.I18nBot("tgbot.messages.active", "Enable=="+active)
+	}
+	if printTraffic {
+		output += t.I18nBot("tgbot.messages.upload", "Upload=="+common.FormatTraffic(traffic.Up))
+		output += t.I18nBot("tgbot.messages.download", "Download=="+common.FormatTraffic(traffic.Down))
+		output += t.I18nBot("tgbot.messages.total", "UpDown=="+common.FormatTraffic((traffic.Up+traffic.Down)), "Total=="+total)
 	}
 	if printDate {
 		if flag {
