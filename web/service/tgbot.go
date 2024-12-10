@@ -879,7 +879,7 @@ func (t *Tgbot) answerCallback(callbackQuery *telego.CallbackQuery, isAdmin bool
 	case "client_traffic":
 		tgUserID := callbackQuery.From.ID
 		t.sendCallbackAnswerTgBot(callbackQuery.ID, t.I18nBot("tgbot.buttons.clientUsage"))
-		t.geteditClientUsage(chatId, tgUserID, ,callbackQuery.Message.GetMessageID())
+		t.geteditClientUsage(chatId, tgUserID,callbackQuery.Message.GetMessageID())
 	case "client_commands":
 		t.sendCallbackAnswerTgBot(callbackQuery.ID, t.I18nBot("tgbot.buttons.commands"))
 		t.SendMsgToTgbot(chatId, t.I18nBot("tgbot.commands.helpClientCommands"))
@@ -1460,7 +1460,7 @@ func (t *Tgbot) getClientUsage(chatId int64, tgUserID int64, email ...string) {
 		t.SendMsgToTgbot(chatId, output, refreshkeyboard)
 	}
 }
-func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, email string, messageID ...int) {
+func (t *Tgbot) geteditClientUsage(chatId int64, tgUserID int64, messageID ...int) {
 	traffics, err := t.inboundService.GetClientTrafficTgBot(tgUserID)
 	if err != nil {
 		logger.Warning(err)
